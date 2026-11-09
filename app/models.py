@@ -5,10 +5,15 @@ from sqlalchemy import (BigInteger, DateTime, ForeignKey, Index, Numeric,
                         SmallInteger, String, Text, UniqueConstraint, func)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+import enum 
 
 class Base(DeclarativeBase):
     pass
 
+class Sex(str, enum.Enum):
+    BOTH = "BTSX"
+    MALE = "MLE"
+    FEMALE = "FMLE"
 
 class Source(Base):
     __tablename__ = "source"
