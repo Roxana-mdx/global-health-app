@@ -66,6 +66,15 @@ def _out_of_bounds(df: pd.DataFrame) -> pd.Series:
     return bad
 
 
+def _flag_outliers(df: pd.DataFrame) -> pd.Series:
+    """True where a value is outside Q1 - 1.5*IQR .. Q3 + 1.5*IQR of its indicator."""
+    grouped = df.groupby("indicator_code")["value"]
+    q1 = grouped.transform(lambda s: s.quantile(0.25))
+    q3 = grouped.transform(lambda s: s.quantile(0.75))
+    iqr = q3 - q1
+    return (df["value"] < q1 - 1.5 * iqr) | (df["value"] > q3 + 1.5 * iqr)
+
+
 def clean_observations(
     raw: pd.DataFrame,
     valid_iso3: Iterable[str],
@@ -123,4 +132,9 @@ def clean_observations(
         "duplicate (country, indicator, year, sex); kept the last",
     )
 
-    return cleaned.reset_index(drop=True)
+    # Outliers are flagged, not dropped: they may be real (e.g. very large countries)
+    cleaned = cleaned.reset_index(drop=True)
+    cleaned["is_outlier"] = _flag_outliers(cleaned)
+    for code, n in cleaned.groupby("indicator_code")["is_outlier"].sum().items():
+        logger.info("%s: %d rows flagged as IQR outliers", code, n)
+    return cleaned

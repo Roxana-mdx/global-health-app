@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (BigInteger, DateTime, ForeignKey, Index, Numeric,
-                        SmallInteger, String, Text, UniqueConstraint, func)
+                        SmallInteger, String, Text, UniqueConstraint, func, Boolean, text)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 import enum 
@@ -65,6 +65,7 @@ class Observation(Base):
     value: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))
     lower: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))
     upper: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))
+    is_outlier: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
     imported_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

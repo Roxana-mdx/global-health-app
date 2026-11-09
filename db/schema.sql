@@ -33,6 +33,7 @@ CREATE TABLE observation (
     value           NUMERIC(18, 4),
     lower           NUMERIC(18, 4),
     upper           NUMERIC(18, 4),
+    is_outlier      BOOLEAN NOT NULL DEFAULT false,
     imported_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT uq_observation UNIQUE (country_iso3, indicator_id, year, sex)
 );
