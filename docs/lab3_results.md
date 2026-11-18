@@ -43,3 +43,13 @@ The button sends `POST /actions/load`. `transform_and_load()` in `app/controller
 6. **Why the filter is kept on the next page.** In `show_observations()`, `page_url(number)` uses `request.url.include_query_params(page=number)`, which keeps every other query parameter. The "Next" link is therefore `/?region=Sub-Saharan+Africa&page=2`. The server remembers nothing between requests: the criteria are rebuilt from the query string each time.
 
 Check in the browser: `http://127.0.0.1:8000/?region=Sub-Saharan+Africa`, then "Next": <write what you saw, e.g. the URL of page 2 still contains `region=Sub-Saharan+Africa`, the "Region" field still shows Sub-Saharan Africa and all rows belong to countries of that region>.
+
+## Task 3.4: Architecture test
+
+The test `tests/test_architecture.py` checks the dependency rule automatically. It reads the source files with Python's `ast` module (without running them) and lists their imports. `app/domain.py`, the files in `app/repositories/` and the files in `app/services/` must not import `fastapi`, `app.controllers` or `app.dependencies`. These are the upper layers, and dependencies are allowed to point only downwards.
+
+To see the test fail, I added `from fastapi import Request` on purpose to `app/services/observation_service.py`. The test for that file failed with `assert ['fastapi'] == []`: it found the forbidden import. The other 7 architecture tests passed.
+
+![Architecture test failing](img/lab3_architecture_fail.png)
+
+After I removed the line, all 62 tests passed again.
