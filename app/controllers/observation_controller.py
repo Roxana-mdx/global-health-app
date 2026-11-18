@@ -6,13 +6,19 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse
 
-from app.controllers.form_fields import blank_to_none, to_int_or_none
+from app.controllers.form_fields import blank_to_none, to_enum_or_none, to_int_or_none
 from app.controllers.templating import templates
 from app.dependencies import get_observation_service
-from app.domain import ObservationCriteria
+from app.domain import ObservationCriteria, Option
+from app.models import Sex
 from app.services.observation_service import ObservationService
 
 router = APIRouter()
+
+_SEX_LABELS = {Sex.BOTH: "Both sexes", Sex.MALE: "Male", Sex.FEMALE: "Female"}
+SEX_OPTIONS = tuple(
+    Option(value=sex.value, label=f"{_SEX_LABELS[sex]} ({sex.value})") for sex in Sex
+)
 
 
 def observation_criteria(
@@ -21,6 +27,7 @@ def observation_criteria(
     region: str | None = None,
     year_from: str | None = None,
     year_to: str | None = None,
+    sex: str | None = None,
 ) -> ObservationCriteria:
     """The filter form's query parameters; blank or invalid ones are ignored."""
     return ObservationCriteria(
@@ -29,6 +36,7 @@ def observation_criteria(
         region=blank_to_none(region),
         year_from=to_int_or_none(year_from),
         year_to=to_int_or_none(year_to),
+        sex=to_enum_or_none(sex, Sex),
     )
 
 
@@ -52,6 +60,7 @@ def show_observations(
             "observations": observations,
             "criteria": criteria,
             "options": service.get_filter_options(),
+            "sex_options": SEX_OPTIONS,
             "previous_url": (
                 page_url(page - 1) if observations.has_previous else None
             ),

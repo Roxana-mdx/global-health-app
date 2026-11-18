@@ -45,6 +45,16 @@
             <input type="number" name="year_to" min="1990" max="2023"
                    value="{{ criteria.year_to if criteria.year_to is not none else '' }}">
         </label>
+        <label>Sex
+            <select name="sex">
+                <option value="">All</option>
+                {% for option in sex_options %}
+                <option value="{{ option.value }}"
+                    {% if criteria.sex and option.value == criteria.sex.value %}selected{% endif %}>
+                    {{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </label>
         <button type="submit">Apply filters</button>
     </div>
 </form>

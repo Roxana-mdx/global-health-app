@@ -57,6 +57,8 @@ def test_pages_neither_repeat_nor_skip_rows(repository) -> None:
         (ObservationCriteria(year_to=2015), 1),
         (ObservationCriteria(country_iso3="ROU", indicator_code=HEALTH, year_from=2019), 2),
         (ObservationCriteria(country_iso3="XXX"), 0),
+        (ObservationCriteria(sex=Sex.FEMALE), 3),
+        (ObservationCriteria(sex=Sex.BOTH), 5),
     ],
 )
 def test_count_applies_every_filter(repository, criteria, expected_count) -> None:
@@ -92,3 +94,17 @@ def test_lookup_lists_for_the_filter_form(repository) -> None:
     assert [o.value for o in repository.list_regions()] == [
         "Europe & Central Asia", "Latin America & Caribbean", "Sub-Saharan Africa",
     ]
+
+
+def test_find_returns_only_the_rows_of_the_chosen_sex(repository) -> None:
+    items = repository.find(ObservationCriteria(sex=Sex.MALE), limit=100, offset=0)
+
+    assert _keys(items) == [("ROU", ENDO, 2019, Sex.MALE)]
+
+
+def test_sex_can_be_combined_with_other_filters(repository) -> None:
+    criteria = ObservationCriteria(country_iso3="ROU", sex=Sex.FEMALE)
+
+    items = repository.find(criteria, limit=100, offset=0)
+
+    assert _keys(items) == [("ROU", ENDO, 2019, Sex.FEMALE)]

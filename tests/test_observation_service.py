@@ -2,6 +2,7 @@
 import pytest
 
 from app.domain import ObservationCriteria
+from app.models import Sex
 from app.services.observation_service import ObservationPage, ObservationService
 from tests.fakes import FakeRepository, make_item
 
@@ -65,3 +66,12 @@ def test_get_filter_options_comes_from_the_repository() -> None:
     service, repository = _service(total_items=0)
 
     assert service.get_filter_options() == repository.get_filter_options()
+
+
+def test_the_sex_filter_is_passed_to_the_repository_unchanged() -> None:
+    service, repository = _service(total_items=9)
+    criteria = ObservationCriteria(sex=Sex.MALE)
+
+    service.get_page(criteria, 1)
+
+    assert repository.find_calls[0][0].sex is Sex.MALE

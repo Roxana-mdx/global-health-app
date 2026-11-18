@@ -20,6 +20,7 @@ class ObservationCriteria:
     region: str | None = None
     year_from: int | None = None
     year_to: int | None = None
+    sex: Sex | None = None
 
 
 @dataclass(frozen=True)

@@ -75,3 +75,25 @@ def test_a_filter_without_matches_shows_a_message(page_client) -> None:
     response = page_client.get("/?country=XXX")
 
     assert "No data matches these filters." in response.text
+
+
+def test_the_sex_filter_shows_exactly_one_row(page_client) -> None:
+    response = page_client.get("/?sex=MLE&country=ROU")
+
+    assert "1 rows" in _visible_text(response)
+    assert re.search(r'value="MLE"\s+selected', response.text)
+    assert "<td>MLE</td>" in response.text
+
+
+def test_the_sex_dropdown_lists_the_three_codes(page_client) -> None:
+    response = page_client.get("/")
+
+    for code in ("BTSX", "MLE", "FMLE"):
+        assert f'<option value="{code}"' in response.text
+
+
+def test_an_unknown_sex_code_is_ignored(page_client) -> None:
+    response = page_client.get("/?sex=XXX")
+
+    assert response.status_code == 200
+    assert "9 rows" in _visible_text(response)
