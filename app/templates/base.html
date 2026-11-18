@@ -1,0 +1,21 @@
+{# base.html: the page layout; every page extends it and fills only the blocks it needs #}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Global Health Data Platform{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+</head>
+<body>
+<header class="container">
+    <nav>
+        <ul><li><strong><a href="/">Global Health Data Platform</a></strong></li></ul>
+        <ul><li>Endometriosis burden and health spending, 1990–2023</li></ul>
+    </nav>
+</header>
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

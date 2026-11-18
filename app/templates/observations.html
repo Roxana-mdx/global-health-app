@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Observations{% endblock %}
+{% block content %}
+<h1>Observations</h1>
+
+<form method="get" action="/">
+    <div class="grid">
+        <label>Country
+            <select name="country">
+                <option value="">All countries</option>
+                {% for option in options.countries %}
+                <option value="{{ option.value }}"
+                    {% if option.value == criteria.country_iso3 %}selected{% endif %}>
+                    {{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Region
+            <select name="region">
+                <option value="">All regions</option>
+                {% for option in options.regions %}
+                <option value="{{ option.value }}"
+                    {% if option.value == criteria.region %}selected{% endif %}>
+                    {{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Indicator
+            <select name="indicator">
+                <option value="">All indicators</option>
+                {% for option in options.indicators %}
+                <option value="{{ option.value }}"
+                    {% if option.value == criteria.indicator_code %}selected{% endif %}>
+                    {{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div class="grid">
+        <label>Year from
+            <input type="number" name="year_from" min="1990" max="2023"
+                   value="{{ criteria.year_from if criteria.year_from is not none else '' }}">
+        </label>
+        <label>Year to
+            <input type="number" name="year_to" min="1990" max="2023"
+                   value="{{ criteria.year_to if criteria.year_to is not none else '' }}">
+        </label>
+        <button type="submit">Apply filters</button>
+    </div>
+</form>
+
+<p>{{ observations.total_items }} rows · page {{ observations.number }}
+   of {{ observations.total_pages }}</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Country</th><th>Indicator</th><th>Year</th>
+            <th>Sex</th><th>Value</th><th>Unit</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for item in observations.items %}
+        <tr>
+            <td>{{ item.country_name }} ({{ item.country_iso3 }})</td>
+            <td>{{ item.indicator_name }}</td>
+            <td>{{ item.year }}</td>
+            <td>{{ item.sex.value }}</td>
+            <td>{{ "%.2f"|format(item.value) if item.value is not none else "-" }}</td>
+            <td>{{ item.unit or "" }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="6">No data matches these filters.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<nav>
+    <ul>
+        {% if previous_url %}<li><a href="{{ previous_url }}">&larr; Previous</a></li>{% endif %}
+        {% if next_url %}<li><a href="{{ next_url }}">Next &rarr;</a></li>{% endif %}
+    </ul>
+</nav>
+
+<hr>
+<h2>Pipeline</h2>
+<div class="grid">
+    <form method="post" action="/actions/extract">
+        <button type="submit" class="secondary">Extract fresh data from sources</button>
+    </form>
+    <form method="post" action="/actions/load">
+        <button type="submit" class="secondary">Transform &amp; load data from local files</button>
+    </form>
+</div>
+{% endblock %}
